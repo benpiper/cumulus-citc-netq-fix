@@ -1,0 +1,23 @@
+---
+- hosts: agents
+  tasks:
+    - name: Change NetQ IP
+      lineinfile:
+        path: /etc/netq/netq.yml
+        regexp: "^  server: 10.1.3.11"
+        line: "  server: 192.168.0.254"
+        backup: yes
+        backrefs: yes
+      become: yes
+      notify: restart agent
+
+  handlers:
+    - name: apply networking
+      command: ifreload -a
+      become: yes
+
+    - name: restart agent
+      service:
+        name: netq-agent.service
+        state: restarted
+      become: yes
